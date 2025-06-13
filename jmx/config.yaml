@@ -1,0 +1,9 @@
+startDelaySeconds: 0
+hostPort: 127.0.0.1:9991
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+rules:
+  - pattern: "kafka.server<type=(.+), name=(.+)PerSec\\w*><>Count"
+    name: kafka_server_$1_$2_total
+    type: COUNTER
+    help: "Kafka metric $1 $2 per second"

@@ -6,6 +6,7 @@ services:
     ports:
       - "9092:9092"
       - "9991:9991"   # JMX exporter
+      - "9144:9141"
     environment:
       - KAFKA_KRAFT_CLUSTER_ID=9rN8Gv3gRTa9JFYuCq9ZUw
       - KAFKA_CFG_NODE_ID=1
@@ -16,8 +17,14 @@ services:
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_DELETE_TOPIC_ENABLE=true
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+      - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=9141:/opt/jmx/config.yaml
+      - KAFKA_JMX_PORT=9991
       - JMX_PORT=9991
       - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.rmi.port=9991 -Djava.rmi.server.hostname=kafka-1   
+    volumes:
+      - ./jmx:/opt/jmx
+      - kafka-1-data:/bitnami/kafka
     healthcheck:
       test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "kafka-1:9092", "--list"]
       interval: 10s
@@ -31,6 +38,7 @@ services:
     ports:
       - "9093:9092"
       - "9992:9992"
+      - "9145:9142"
     environment:
       - KAFKA_KRAFT_CLUSTER_ID=9rN8Gv3gRTa9JFYuCq9ZUw
       - KAFKA_CFG_NODE_ID=2
@@ -41,9 +49,14 @@ services:
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_DELETE_TOPIC_ENABLE=true
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+      - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=9142:/opt/jmx/config.yaml
+      - KAFKA_JMX_PORT=9992
       - JMX_PORT=9992
       - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.rmi.port=9992 -Djava.rmi.server.hostname=kafka-
-
+    volumes:  
+      - ./jmx:/opt/jmx
+      - kafka-2-data:/bitnami/kafka
     healthcheck:
       test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "kafka-2:9092", "--list"]
       interval: 10s
@@ -57,6 +70,7 @@ services:
     ports:
       - "9094:9092"
       - "9993:9993"
+      - "9146:9143"
     environment:
       - KAFKA_KRAFT_CLUSTER_ID=9rN8Gv3gRTa9JFYuCq9ZUw
       - KAFKA_CFG_NODE_ID=3
@@ -67,8 +81,14 @@ services:
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_DELETE_TOPIC_ENABLE=true
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+      - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=9143:/opt/jmx/config.yaml
+      - KAFKA_JMX_PORT=9993
       - JMX_PORT=9993
       - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.rmi.port=9993 -Djava.rmi.server.hostname=kafka-3
+    volumes:
+      - ./jmx:/opt/jmx
+      - kafka-3-data:/bitnami/kafka
     healthcheck:
       test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "kafka-3:9092", "--list"]
       interval: 10s
