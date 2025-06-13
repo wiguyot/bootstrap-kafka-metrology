@@ -1,4 +1,9 @@
-# Répertoires de données Kafka (stockage local ou bind mount)
-kafka-1-data/
-kafka-2-data/
-kafka-3-data/
+# Ignorer tout dans kafka-*-data sauf le fichier .gitkeep
+kafka-1-data/*
+!kafka-1-data/.gitkeep
+
+kafka-2-data/*
+!kafka-2-data/.gitkeep
+
+kafka-3-data/*
+!kafka-3-data/.gitkeep
