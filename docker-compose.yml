@@ -112,6 +112,16 @@ services:
     depends_on:
       - kafka-2
 
+  init-producer:
+    build:
+      context: ./init-producer
+    environment:
+      - BROKER=kafka-1:9092
+      - TOPIC=weather
+    depends_on:
+      - kafka-1
+
+
   jmx-exporter-3:
     image: bitnami/jmx-exporter:latest
     container_name: jmx-exporter-3
