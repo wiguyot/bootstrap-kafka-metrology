@@ -1,4 +1,4 @@
-version: '3.8'
+
 services:
 
   zookeeper:
@@ -146,6 +146,17 @@ services:
     depends_on:
       - prometheus
 
+  topic-init:
+    build:
+      context: ./topic-init
+    environment:
+      - KAFKA_BROKER=kafka-1:9092   # ou ton bootstrap préféré
+    depends_on:
+      - kafka-1
+
 networks:
   default:
     name: kafka-net
+
+
+
