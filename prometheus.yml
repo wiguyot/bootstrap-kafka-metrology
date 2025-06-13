@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: 'kafka-1'
+    static_configs:
+      - targets: ['jmx-exporter-1:9141']
+
+  - job_name: 'kafka-2'
+    static_configs:
+      - targets: ['jmx-exporter-2:9142']
+
+  - job_name: 'kafka-3'
+    static_configs:
+      - targets: ['jmx-exporter-3:9143']
