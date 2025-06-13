@@ -1,23 +1,13 @@
-
 services:
-
-  zookeeper:
-    image: bitnami/zookeeper:latest
-    container_name: zookeeper
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
-    ports:
-      - "2181:2181"
-
   kafka-1:
     image: bitnami/kafka:latest
     container_name: kafka-1
     hostname: kafka-1
     ports:
       - "9092:9092"
-      - "9991:9991"
+      - "9991:9991"   # JMX exporter
     environment:
-      - KAFKA_KRAFT_CLUSTER_ID=kraft-cluster
+      - KAFKA_KRAFT_CLUSTER_ID=9rN8Gv3gRTa9JFYuCq9ZUw
       - KAFKA_CFG_NODE_ID=1
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
@@ -27,10 +17,12 @@ services:
       - KAFKA_CFG_DELETE_TOPIC_ENABLE=true
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
       - JMX_PORT=9991
-      - JMX_HOST=kafka-1
-      - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=9991 -Dcom.sun.management.jmxremote.rmi.port=9991 -Djava.rmi.server.hostname=kafka-1
-    depends_on:
-      - zookeeper
+      - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.rmi.port=9991 -Djava.rmi.server.hostname=kafka-1
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "kafka-1:9092", "--list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   kafka-2:
     image: bitnami/kafka:latest
@@ -40,7 +32,7 @@ services:
       - "9093:9092"
       - "9992:9992"
     environment:
-      - KAFKA_KRAFT_CLUSTER_ID=kraft-cluster
+      - KAFKA_KRAFT_CLUSTER_ID=9rN8Gv3gRTa9JFYuCq9ZUw
       - KAFKA_CFG_NODE_ID=2
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
@@ -50,10 +42,12 @@ services:
       - KAFKA_CFG_DELETE_TOPIC_ENABLE=true
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
       - JMX_PORT=9992
-      - JMX_HOST=kafka-2
-      - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=9992 -Dcom.sun.management.jmxremote.rmi.port=9992 -Djava.rmi.server.hostname=kafka-2
-    depends_on:
-      - zookeeper
+      - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.rmi.port=9992 -Djava.rmi.server.hostname=kafka-2
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "kafka-2:9092", "--list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   kafka-3:
     image: bitnami/kafka:latest
@@ -63,7 +57,7 @@ services:
       - "9094:9092"
       - "9993:9993"
     environment:
-      - KAFKA_KRAFT_CLUSTER_ID=kraft-cluster
+      - KAFKA_KRAFT_CLUSTER_ID=9rN8Gv3gRTa9JFYuCq9ZUw
       - KAFKA_CFG_NODE_ID=3
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
@@ -73,31 +67,23 @@ services:
       - KAFKA_CFG_DELETE_TOPIC_ENABLE=true
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
       - JMX_PORT=9993
-      - JMX_HOST=kafka-3
-      - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=9993 -Dcom.sun.management.jmxremote.rmi.port=9993 -Djava.rmi.server.hostname=kafka-3
-    depends_on:
-      - zookeeper
+      - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.rmi.port=9993 -Djava.rmi.server.hostname=kafka-3
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "kafka-3:9092", "--list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
-  kafdrop:
-    image: obsidiandynamics/kafdrop
-    container_name: kafdrop
-    ports:
-      - "9000:9000"
-    environment:
-      KAFKA_BROKERCONNECT: "kafka-1:9092,kafka-2:9092,kafka-3:9092"
-    depends_on:
-      - kafka-1
-      - kafka-2
-      - kafka-3
-
+  # Un jmx-exporter pour chaque broker
   jmx-exporter-1:
     image: bitnami/jmx-exporter:latest
     container_name: jmx-exporter-1
     environment:
       - JMX_URL=service:jmx:rmi:///jndi/rmi://kafka-1:9991/jmxrmi
-      - JMX_EXPORTER_PORT=9141
+      - JMX_EXPORTER_PORT=5556
     ports:
       - "9141:9141"
+      - "5556:5556"
     depends_on:
       - kafka-1
 
@@ -106,30 +92,22 @@ services:
     container_name: jmx-exporter-2
     environment:
       - JMX_URL=service:jmx:rmi:///jndi/rmi://kafka-2:9992/jmxrmi
-      - JMX_EXPORTER_PORT=9142
+      - JMX_EXPORTER_PORT=5557
     ports:
       - "9142:9142"
+      - "5557:5557"
     depends_on:
       - kafka-2
-
-  init-producer:
-    build:
-      context: ./init-producer
-    environment:
-      - BROKER=kafka-1:9092
-      - TOPIC=weather
-    depends_on:
-      - kafka-1
-
 
   jmx-exporter-3:
     image: bitnami/jmx-exporter:latest
     container_name: jmx-exporter-3
     environment:
       - JMX_URL=service:jmx:rmi:///jndi/rmi://kafka-3:9993/jmxrmi
-      - JMX_EXPORTER_PORT=9143
+      - JMX_EXPORTER_PORT=5558
     ports:
       - "9143:9143"
+      - "5558:5558"
     depends_on:
       - kafka-3
 
@@ -139,7 +117,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     depends_on:
       - jmx-exporter-1
       - jmx-exporter-2
@@ -152,9 +130,31 @@ services:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
       - prometheus
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    container_name: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka-1:9092,kafka-2:9092,kafka-3:9092"
+      JVM_OPTS: "-Xms32M -Xmx64M"
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+
+  init-producer:
+    build:
+      context: ./init-producer
+    environment:
+      - BROKER=kafka-1:9092
+      - TOPIC=weather
+    depends_on:
+      - kafka-1
+
 
   topic-init:
     build:

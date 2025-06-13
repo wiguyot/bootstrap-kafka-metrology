@@ -1,4 +1,5 @@
-from confluent_kafka import Producer, KafkaException, AdminClient
+from confluent_kafka import Producer, KafkaException
+from confluent_kafka.admin import AdminClient
 import os, random, time
 
 BROKER = os.getenv("BROKER", "kafka-1:9092")
