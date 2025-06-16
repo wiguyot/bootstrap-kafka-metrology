@@ -2,28 +2,81 @@ version: "3.8"
 
 services:
 
-  kafka:
+  kafka-1:
     image: bitnami/kafka:3.7
-    container_name: kafka
+    container_name: kafka-1
+    hostname: kafka-1
     ports:
       - "9092:9092"
       - "9991:9991"
       - "8778:8778"
     environment:
+      - KAFKA_KRAFT_CLUSTER_ID=7b28a3db-66e4-4eb7-a534-81f4e1781ce2
       - KAFKA_CFG_NODE_ID=1
       - KAFKA_CFG_PROCESS_ROLES=broker,controller
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-1:9092
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_LOG_DIRS=/tmp/kraft-combined-logs
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
       - KAFKA_HEAP_OPTS=-Xmx512m -Xms512m
       - KAFKA_JMX_PORT=9991
-      - KAFKA_JMX_HOSTNAME=kafka
+      - KAFKA_JMX_HOSTNAME=kafka-1
       - KAFKA_OPTS=-javaagent:/opt/jolokia.jar=port=8778,host=0.0.0.0
     volumes:
       - ./jolokia.jar:/opt/jolokia.jar  
+
+  kafka-2:
+    image: bitnami/kafka:3.7
+    container_name: kafka-2
+    hostname: kafka-2
+    ports:
+      - "9094:9092"
+      - "9992:9991"
+      - "8779:8778"
+    environment:
+      - KAFKA_KRAFT_CLUSTER_ID=7b28a3db-66e4-4eb7-a534-81f4e1781ce2
+      - KAFKA_CFG_NODE_ID=2
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-2:9092
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LOG_DIRS=/tmp/kraft-combined-logs
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_HEAP_OPTS=-Xmx512m -Xms512m
+      - KAFKA_JMX_PORT=9991
+      - KAFKA_JMX_HOSTNAME=kafka-2
+      - KAFKA_OPTS=-javaagent:/opt/jolokia.jar=port=8778,host=0.0.0.0
+    volumes:
+      - ./jolokia.jar:/opt/jolokia.jar  
+
+  kafka-3:
+    image: bitnami/kafka:3.7
+    container_name: kafka-3
+    hostname: kafka-3
+    ports:
+      - "9096:9092"
+      - "9993:9991"
+      - "8780:8778"
+    environment:
+      - KAFKA_KRAFT_CLUSTER_ID=7b28a3db-66e4-4eb7-a534-81f4e1781ce2
+      - KAFKA_CFG_NODE_ID=3
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-3:9092
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LOG_DIRS=/tmp/kraft-combined-logs
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_HEAP_OPTS=-Xmx512m -Xms512m
+      - KAFKA_JMX_PORT=9991
+      - KAFKA_JMX_HOSTNAME=kafka-3
+      - KAFKA_OPTS=-javaagent:/opt/jolokia.jar=port=8778,host=0.0.0.0
+    volumes:
+      - ./jolokia.jar:/opt/jolokia.jar  
+
   influxdb:
     image: influxdb:2.7
     container_name: influxdb
@@ -41,7 +94,9 @@ services:
     image: telegraf:1.30
     container_name: telegraf
     depends_on:
-      - kafka
+      - kafka-1
+      - kafka-2
+      - kafka-3
       - influxdb
     volumes:
       - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
