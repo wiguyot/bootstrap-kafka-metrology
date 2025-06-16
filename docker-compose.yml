@@ -1,205 +1,47 @@
+version: "3.8"
+
 services:
-  kafka-1:
-    image: bitnami/kafka:3.5.1
-    container_name: kafka-1
-    hostname: kafka-1
+
+  kafka:
+    image: bitnami/kafka:3.7
+    container_name: kafka
     ports:
       - "9092:9092"
       - "9991:9991"
-      - "9144:9141"
+      - "8778:8778"
     environment:
-      - KAFKA_KRAFT_CLUSTER_ID=9rN8Gv3gRTa9JFYuCq9ZUw
       - KAFKA_CFG_NODE_ID=1
-      - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-1:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      - KAFKA_CFG_DELETE_TOPIC_ENABLE=true
-      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=9141:/opt/jmx/config.yaml
+      - KAFKA_CFG_LOG_DIRS=/tmp/kraft-combined-logs
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_HEAP_OPTS=-Xmx512m -Xms512m
       - KAFKA_JMX_PORT=9991
-      - JMX_PORT=9991
-      - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.rmi.port=9991 -Djava.rmi.server.hostname=kafka-1
+      - KAFKA_JMX_HOSTNAME=kafka
+      - KAFKA_OPTS=-javaagent:/opt/jolokia.jar=port=8778,host=0.0.0.0
     volumes:
-      - ./jmx:/opt/jmx
-      - kafka-1-data:/bitnami/kafka
-    healthcheck:
-      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "kafka-1:9092", "--list"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  kafka-2:
-    image: bitnami/kafka:3.5.1
-    container_name: kafka-2
-    hostname: kafka-2
+      - ./jolokia.jar:/opt/jolokia.jar  
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
     ports:
-      - "9093:9092"
-      - "9992:9992"
-      - "9145:9142"
+      - "8086:8086"
     environment:
-      - KAFKA_KRAFT_CLUSTER_ID=9rN8Gv3gRTa9JFYuCq9ZUw
-      - KAFKA_CFG_NODE_ID=2
-      - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-2:9092
-      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      - KAFKA_CFG_DELETE_TOPIC_ENABLE=true
-      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=9142:/opt/jmx/config.yaml
-      - KAFKA_JMX_PORT=9992
-      - JMX_PORT=9992
-      - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.rmi.port=9992 -Djava.rmi.server.hostname=kafka-2
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpass
+      - DOCKER_INFLUXDB_INIT_ORG=my-org
+      - DOCKER_INFLUXDB_INIT_BUCKET=kafka_metrics
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-token
+
+  telegraf:
+    image: telegraf:1.30
+    container_name: telegraf
+    depends_on:
+      - kafka
+      - influxdb
     volumes:
-      - ./jmx:/opt/jmx
-      - kafka-2-data:/bitnami/kafka
-    healthcheck:
-      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "kafka-2:9092", "--list"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  kafka-3:
-    image: bitnami/kafka:3.5.1
-    container_name: kafka-3
-    hostname: kafka-3
-    ports:
-      - "9094:9092"
-      - "9993:9993"
-      - "9146:9143"
-    environment:
-      - KAFKA_KRAFT_CLUSTER_ID=9rN8Gv3gRTa9JFYuCq9ZUw
-      - KAFKA_CFG_NODE_ID=3
-      - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-3:9092
-      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      - KAFKA_CFG_DELETE_TOPIC_ENABLE=true
-      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      - KAFKA_OPTS=-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=9143:/opt/jmx/config.yaml
-      - KAFKA_JMX_PORT=9993
-      - JMX_PORT=9993
-      - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.rmi.port=9993 -Djava.rmi.server.hostname=kafka-3
-    volumes:
-      - ./jmx:/opt/jmx
-      - kafka-3-data:/bitnami/kafka
-    healthcheck:
-      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "kafka-3:9092", "--list"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  # Un jmx-exporter pour chaque broker
-  jmx-exporter-1:
-    image: bitnami/jmx-exporter:latest
-    container_name: jmx-exporter-1
-    environment:
-      - JMX_URL=service:jmx:rmi:///jndi/rmi://kafka-1:9991/jmxrmi
-      - JMX_EXPORTER_PORT=5556
-      - JMX_EXPORTER_CONFIG=/opt/jmx_exporter/kafka-jmx-exporter.yml
-    volumes:
-      - ./kafka-jmx-exporter.yml:/opt/jmx_exporter/kafka-jmx-exporter.yml:ro
-    ports:
-      - "9141:9141"
-      - "5556:5556"
-    depends_on:
-      - kafka-1
-
-  jmx-exporter-2:
-    image: bitnami/jmx-exporter:latest
-    container_name: jmx-exporter-2
-    environment:
-      - JMX_URL=service:jmx:rmi:///jndi/rmi://kafka-2:9992/jmxrmi
-      - JMX_EXPORTER_PORT=5557
-      - JMX_EXPORTER_CONFIG=/opt/jmx_exporter/kafka-jmx-exporter.yml
-    volumes:
-      - ./kafka-jmx-exporter.yml:/opt/jmx_exporter/kafka-jmx-exporter.yml:ro
-    ports:
-      - "9142:9142"
-      - "5557:5557"
-    depends_on:
-      - kafka-2
-
-  jmx-exporter-3:
-    image: bitnami/jmx-exporter:latest
-    container_name: jmx-exporter-3
-    environment:
-      - JMX_URL=service:jmx:rmi:///jndi/rmi://kafka-3:9993/jmxrmi
-      - JMX_EXPORTER_PORT=5558      
-      - JMX_EXPORTER_CONFIG=/opt/jmx_exporter/kafka-jmx-exporter.yml
-    volumes:
-      - ./kafka-jmx-exporter.yml:/opt/jmx_exporter/kafka-jmx-exporter.yml:ro
-    ports:
-      - "9143:9143"
-      - "5558:5558"
-    depends_on:
-      - kafka-3
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    depends_on:
-      - jmx-exporter-1
-      - jmx-exporter-2
-      - jmx-exporter-3
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    depends_on:
-      - prometheus
-
-  kafdrop:
-    image: obsidiandynamics/kafdrop
-    container_name: kafdrop
-    ports:
-      - "9000:9000"
-    environment:
-      KAFKA_BROKERCONNECT: "kafka-1:9092,kafka-2:9092,kafka-3:9092"
-      JVM_OPTS: "-Xms32M -Xmx64M"
-    depends_on:
-      - kafka-1
-      - kafka-2
-      - kafka-3
-
-  init-producer:
-    build:
-      context: ./init-producer
-    environment:
-      - BROKER=kafka-1:9092
-      - TOPIC=weather
-    depends_on:
-      - kafka-1
-
-
-  topic-init:
-    build:
-      context: ./topic-init
-    environment:
-      - KAFKA_BROKER=kafka-1:9092   # ou ton bootstrap préféré
-    depends_on:
-      - kafka-1
-
-networks:
-  default:
-    name: kafka-net
-
-
-volumes:
-  kafka-1-data:
-  kafka-2-data:
-  kafka-3-data:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
