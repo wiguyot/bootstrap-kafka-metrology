@@ -8,7 +8,7 @@ CITIES = [
     "Paris", "Marseille", "Lyon", "Toulouse", "Nice",
     "Nantes", "Montpellier", "Strasbourg", "Bordeaux", "Lille"
 ]
-N_MESSAGES = 1_000_000
+N_MESSAGES = 1_000_000_000
 
 def wait_for_topic(broker, topic, timeout=60):
     admin = AdminClient({'bootstrap.servers': broker})
@@ -53,6 +53,8 @@ def main():
             print(f"{i} messages produced...")
         if i % 1000 == 0:
             p.poll(0)
+            duree = random.uniform(1, 10)
+            time.sleep(duree)
     p.flush()
     print("Finished producing 1M messages.")
 

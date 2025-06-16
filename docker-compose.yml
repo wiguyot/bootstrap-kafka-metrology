@@ -100,3 +100,40 @@ services:
       - influxdb
     volumes:
       - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+
+
+  init-producer:
+    build:
+      context: ./init-producer
+    environment:
+      - BROKER=kafka-1:9092
+      - TOPIC=weather
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+
+
+  topic-init:
+    build:
+      context: ./topic-init
+    environment:
+      - KAFKA_BROKER=kafka-1:9092   # ou ton bootstrap préféré
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    container_name: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      - KAFKA_BROKERCONNECT=kafka-1:9092,kafka-2:9092,kafka-3:9092
+      - SERVER_PORT=9000
+      - JVM_OPTS=-Xms128M -Xmx512M
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
