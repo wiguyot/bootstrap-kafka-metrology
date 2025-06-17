@@ -113,6 +113,37 @@ services:
       - kafka-2
       - kafka-3
 
+  consumer-1:
+    build: ./init-consumer
+    environment:
+      BROKER: kafka-1:9092
+      TOPIC: weather
+      GROUP_ID: weather-group
+      CLIENT_ID: consumer-1
+
+  consumer-2:
+    build: ./init-consumer
+    environment:
+      BROKER: kafka-1:9092
+      TOPIC: weather
+      GROUP_ID: weather-group
+      CLIENT_ID: consumer-2
+
+  consumer-3:
+    build: ./init-consumer
+    environment:
+      BROKER: kafka-1:9092
+      TOPIC: weather
+      GROUP_ID: weather-group
+      CLIENT_ID: consumer-3
+
+  consumer-4:
+    build: ./init-consumer
+    environment:
+      BROKER: kafka-1:9092
+      TOPIC: weather
+      GROUP_ID: weather-group
+      CLIENT_ID: consumer-4
 
   topic-init:
     build:
