@@ -30,7 +30,7 @@ docker compose logs telegraf -f
 8. Quel bucket est utilisé dans cette application.
 9. Quels sont les grandes familles de métriques dont on a la métrologie ? Concentrez vous sur "broker/replication, network, topic metrics, consumer lag".
 10. Sachant que la plupart des courbes disponibles pour ces measurements vont être des courbes globalement continuellement ascendantes, quel proposez vous comme fonction d'agrégation pour construite des graphiques mettant en valeur les variations.
-11. Au moyen d'une telle fonction montrez ce qu'ils se passe lors de la perte d'un broker puis après quelques minutes sont retour. Vous pourrez par exemplke vous aider des commandes **docker pause kafka-2**" et **docker unpause kafka-2**". Mettez en évidence les measurements affectés au moyen d'un dashboard. Vous mettrez la requête correspondante en "Flux" d'influxDB.
+11. Au moyen du script "suspend_random_broker_loop.sh" montrez ce qu'ils se passe lors de la perte d'un broker puis après quelques temps sont retour.  Mettez en évidence les measurements affectés au moyen d'un dashboard. Vous mettrez la requête correspondante en "Flux" d'influxDB.
 
 "**To infinity and beyond!**" :
 
