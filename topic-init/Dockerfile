@@ -1,4 +1,4 @@
-FROM bitnami/kafka:latest
+FROM bitnamilegacy/kafka
 
 # Copie du script de création du topic
 COPY --chmod=755 create-topic.sh /create-topic.sh

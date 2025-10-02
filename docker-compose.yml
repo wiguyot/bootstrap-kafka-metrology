@@ -1,7 +1,7 @@
 services:
 
   kafka-1:
-    image: bitnami/kafka:3.7
+    image: bitnamilegacy/kafka
     container_name: kafka-1
     hostname: kafka-1
     ports:
@@ -26,7 +26,7 @@ services:
       - ./jolokia.jar:/opt/jolokia.jar  
 
   kafka-2:
-    image: bitnami/kafka:3.7
+    image: bitnamilegacy/kafka
     container_name: kafka-2
     hostname: kafka-2
     ports:
@@ -51,7 +51,7 @@ services:
       - ./jolokia.jar:/opt/jolokia.jar  
 
   kafka-3:
-    image: bitnami/kafka:3.7
+    image: bitnamilegacy/kafka
     container_name: kafka-3
     hostname: kafka-3
     ports:
